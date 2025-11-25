@@ -228,7 +228,71 @@ beginer:
 			const char* tcp_ip = firstRoom.first.c_str();
 			int port = std::stoi(firstRoom.second);
 			socket_t client_fd = tcp_connect_server(tcp_ip,port);
-			
+
+			while (1)
+			{
+				putimage(400, 12, &beijing);
+				printf("%d\n", deter);
+				settextstyle(64, BLACK, _T("宋体"));
+				outtextxy(400, 10, "白方落子");
+			huisuhui:
+
+				int recv_ret = tcp_recv_two_ints(client_fd, &xx, &yy);
+				if (recv_ret != 0) {
+					if (recv_ret == -1) printf("接收失败\n");
+					else if (recv_ret == -2) printf("服务端已断开\n");
+					else if (recv_ret == -3) printf("接收数据不完整\n");
+					break;
+				}
+
+				luru(2, xx, yy, xpp, ypp);
+				determine(xnum, ynum, 2);
+				if (deter != 0)
+				{
+					tcp_client_close(client_fd);
+					goto failer;
+				}
+				mciSendString("close mymusic", NULL, 0, NULL);
+				yinyue();
+
+			huisuhui1:
+				putimage(400, 12, &beijing);
+				settextstyle(64, BLACK, _T("宋体"));
+				outtextxy(400, 10, "黑方落子");
+				while (1)
+				{
+					Msg = GetMouseMsg();
+					if (Msg.uMsg == WM_LBUTTONDOWN)
+					{
+						xx = Msg.x;
+						yy = Msg.y;
+
+						break;
+					}
+				}
+
+				if (luru(1, xx, yy, xpp, ypp))
+				{
+					goto huisuhui1;
+				}
+
+				int send_ret = tcp_send_two_ints(client_fd, xx, yy);
+				if (send_ret != 0) {
+					if (send_ret == -1) printf("发送失败\n");
+					else printf("参数无效\n");
+					break;
+				}
+
+				determine(xnum, ynum, 1);
+				if (deter != 0)
+				{
+					tcp_client_close(client_fd);
+					goto failer;
+				}
+				mciSendString("close mymusic", NULL, 0, NULL);
+				yinyue();
+
+			}
 
 			initGAME(4);
 		}
@@ -253,8 +317,83 @@ beginer:
 			initGAME(4);
 			getchar();
 
+			TCPServer server;
+			if (tcp_server_init(&server, 5, 8000) != 0) {
+				return 1;
+			}
+
+			if (tcp_server_accept(&server) != 0) {
+				tcp_server_cleanup(&server);
+				return 1;
+			}
+
 			closeMyRoomThread();  // 退出前确保线程关闭
-			std::cout << "主程序退出" << std::endl;
+			std::cout << "寻址线程退出" << std::endl;
+
+			while (1)
+			{
+				putimage(400, 12, &beijing);
+				printf("%d\n", deter);
+				settextstyle(64, BLACK, _T("宋体"));
+				outtextxy(400, 10, "白方落子");
+			suhui:
+				while (1)
+				{
+					Msg = GetMouseMsg();
+					if (Msg.uMsg == WM_LBUTTONDOWN)
+					{
+						xx = Msg.x;
+						yy = Msg.y;
+
+						break;
+					}
+				}
+
+				if (luru(2, xx, yy, xpp, ypp))
+				{
+					goto suhui;
+				}
+
+				int send_ret = tcp_send_two_ints(server.client_fd, xx, yy);
+				if (send_ret != 0) {
+					if (send_ret == -1) printf("发送失败\n");
+					else printf("参数无效\n");
+					break;
+				}
+
+				determine(xnum, ynum, 2);
+				if (deter != 0)
+				{
+					goto failer;
+				}
+				mciSendString("close mymusic", NULL, 0, NULL);
+				yinyue();
+			suhui1:
+				putimage(400, 12, &beijing);
+				settextstyle(64, BLACK, _T("宋体"));
+				outtextxy(400, 10, "黑方落子");
+
+				int recv_ret = tcp_recv_two_ints(server.client_fd, &xx, &yy);
+				
+				if (recv_ret != 0) {
+					if (recv_ret == -1) printf("接收失败\n");
+					else if (recv_ret == -2) printf("客户端已断开\n");
+					else if (recv_ret == -3) printf("接收数据不完整\n");
+					break;
+				}
+
+				luru(1, xx, yy, xpp, ypp);
+				determine(xnum, ynum, 1);
+				if (deter != 0)
+				{
+					goto failer;
+				}
+
+				mciSendString("close mymusic", NULL, 0, NULL);
+				yinyue();
+
+				int iiiiisiisss = 1;
+			}
 
 			int fuchhh;
 			fuchhh = 111;

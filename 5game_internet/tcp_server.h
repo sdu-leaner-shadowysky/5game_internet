@@ -13,7 +13,7 @@ typedef struct {
 } TCPServer;
 
 // 初始化服务端（绑定8000端口）
-int tcp_server_init(TCPServer* server, int backlog);
+int tcp_server_init(TCPServer* server, int backlog, int port);
 
 // 接受客户端连接
 int tcp_server_accept(TCPServer* server);

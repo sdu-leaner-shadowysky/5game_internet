@@ -50,7 +50,7 @@
 //}
 
 // 服务端初始化
-int tcp_server_init(TCPServer* server, int backlog) {
+int tcp_server_init(TCPServer* server, int backlog, int port) {
 #ifdef _WIN32
     WSADATA wsaData;
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
@@ -73,7 +73,7 @@ int tcp_server_init(TCPServer* server, int backlog) {
     memset(&server_addr, 0, sizeof(server_addr));
     server_addr.sin_family = AF_INET;
     server_addr.sin_addr.s_addr = INADDR_ANY;
-    server_addr.sin_port = htons(8000);  // 绑定8000端口
+    server_addr.sin_port = htons(port);  // 绑定8000端口port
 
     if (bind(server->server_fd, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
 #ifdef _WIN32
@@ -105,12 +105,13 @@ int tcp_server_init(TCPServer* server, int backlog) {
 
     server->addr_len = sizeof(server->client_addr);
     server->client_fd = -1;
-    printf("服务端初始化成功，监听8000端口...\n");
+    printf("服务端初始化成功，监听%d端口...\n", port);
     return 0;
 }
 
 // 接受客户端连接
 int tcp_server_accept(TCPServer* server) {
+    printf("开始尝试连接\n");
     server->client_fd = accept(server->server_fd,
         (struct sockaddr*)&server->client_addr,
         &server->addr_len);
